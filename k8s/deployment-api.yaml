@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ml-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ml-api
+  template:
+    metadata:
+      labels:
+        app: ml-api
+    spec:
+      initContainers:
+      - name: wait-for-clearml
+        image: busybox
+        command:
+          - sh
+          - -c
+          - |
+            until nc -z clearml-service 8008; do
+              echo "Waiting for ClearML..."
+              sleep 2
+            done
+      containers:
+      - name: api
+        image: ml-service-api:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+          - containerPort: 8000
+        env:
+          - name: CLEARML_PROJECT
+            value: "ML-Service"
+          - name: CLEARML_API_HOST
+            value: "http://clearml-service:8008"
+          - name: MINIO_ENDPOINT
+            value: "http://minio-service:9000"
+        volumeMounts:
+          - name: data-volume
+            mountPath: /app/data
+          - name: datasets-volume
+            mountPath: /app/datasets
+          - name: models-volume
+            mountPath: /app/trained_models
+      volumes:
+        - name: data-volume
+          persistentVolumeClaim:
+            claimName: ml-data-pvc
+        - name: datasets-volume
+          persistentVolumeClaim:
+            claimName: datasets-pvc
+        - name: models-volume
+          persistentVolumeClaim:
+            claimName: models-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ml-api-service
+spec:
+  selector:
+    app: ml-api
+  ports:
+    - name: http
+      port: 8000
+      targetPort: 8000
+  type: LoadBalancer

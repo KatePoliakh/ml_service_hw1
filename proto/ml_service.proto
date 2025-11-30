@@ -1,0 +1,82 @@
+syntax = "proto3";
+
+package mlservice;
+
+service MLService {
+  rpc HealthCheck (HealthRequest) returns (HealthResponse);
+  rpc GetModelClasses (ModelClassesRequest) returns (ModelClassesResponse);
+  rpc ListDatasets (DatasetsRequest) returns (DatasetsResponse);
+  rpc TrainModel (TrainRequest) returns (TrainResponse);
+  rpc ListModels (ModelsRequest) returns (ModelsResponse);
+  rpc Predict (PredictRequest) returns (PredictResponse);
+}
+
+message HealthRequest {}
+
+message HealthResponse {
+  string status = 1;
+}
+
+message ModelClassesRequest {}
+
+message ModelClassesResponse {
+  repeated string classes = 1;
+}
+
+message DatasetsRequest {}
+
+message DatasetInfo {
+  string name = 1;
+  int64 size = 2;
+  string created_at = 3;
+  bool dvc_tracked = 4;
+}
+
+message DatasetsResponse {
+  repeated DatasetInfo datasets = 1;
+}
+
+message TrainRequest {
+  string dataset = 1;
+  string model_class = 2;
+  map<string, string> hyperparams = 3;
+  string model_name = 4;
+  string experiment_name = 5;
+}
+
+message TrainResponse {
+  string status = 1;
+  string model_id = 2;
+  string message = 3;
+}
+
+message ModelsRequest {}
+
+message ModelInfo {
+  string id = 1;
+  string name = 2;
+  string model_class = 3;
+  string status = 4;
+  string created_at = 5;
+  string dataset = 6;
+  float val_score = 7;
+  string clearml_id = 8;
+}
+
+message ModelsResponse {
+  repeated ModelInfo models = 1;
+}
+
+message PredictRequest {
+  string model_id = 1;
+  repeated FeatureVector features = 2;
+}
+
+message FeatureVector {
+  repeated double values = 1;
+}
+
+message PredictResponse {
+  repeated double predictions = 1;
+  string model_id = 2;
+}

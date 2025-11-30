@@ -1,0 +1,111 @@
+{
+  "logreg_1764527779": {
+    "id": "logreg_1764527779",
+    "name": "logreg_1764527779",
+    "model_class": "logreg",
+    "hyperparams": {
+      "C": 1.0,
+      "max_iter": 1000
+    },
+    "dataset": "test_dataset.csv",
+    "status": "ready",
+    "created_at": "2025-11-30T21:36:19.935627",
+    "artifact_path": "trained_models/logreg_1764527779.joblib",
+    "val_score": 0.0,
+    "metrics": {
+      "accuracy": 0.0,
+      "f1_score": 0.0
+    }
+  },
+  "logreg_1764531075": {
+    "id": "logreg_1764531075",
+    "name": "logreg_1764531075",
+    "model_class": "logreg",
+    "hyperparams": {
+      "C": 1.0,
+      "max_iter": 1000
+    },
+    "dataset": "test_dataset.csv",
+    "status": "failed",
+    "created_at": "2025-11-30T22:31:15.946445",
+    "artifact_path": null,
+    "val_score": null,
+    "metrics": {},
+    "clearml_id": "local-logreg_1764531075",
+    "error": {
+      "error": "'float' object has no attribute 'items'",
+      "traceback": "Traceback (most recent call last):\n  File \"/Users/ekaterinapolah/Desktop/hse/ml/ml_service_hw1/app/core/trainer.py\", line 142, in train\n    for metric_name, value in class_metrics.items():\n                              ^^^^^^^^^^^^^^^^^^^\nAttributeError: 'float' object has no attribute 'items'\n"
+    }
+  },
+  "test_model": {
+    "id": "test_model",
+    "name": "test_model",
+    "model_class": "logreg",
+    "hyperparams": {
+      "C": 0.5
+    },
+    "dataset": "test_dataset.csv",
+    "status": "ready",
+    "created_at": "2025-11-30T23:25:30.562537",
+    "artifact_path": "/Users/ekaterinapolah/Desktop/hse/ml/ml_service_hw1/trained_models/test_model.joblib",
+    "val_score": 0.0,
+    "metrics": {
+      "accuracy": 0.0,
+      "f1_score": 0.0,
+      "val_samples": 2,
+      "0_precision": 0.0,
+      "0_recall": 0.0,
+      "0_f1-score": 0.0,
+      "0_support": 1.0,
+      "1_precision": 0.0,
+      "1_recall": 0.0,
+      "1_f1-score": 0.0,
+      "1_support": 1.0,
+      "macro avg_precision": 0.0,
+      "macro avg_recall": 0.0,
+      "macro avg_f1-score": 0.0,
+      "macro avg_support": 2.0,
+      "weighted avg_precision": 0.0,
+      "weighted avg_recall": 0.0,
+      "weighted avg_f1-score": 0.0,
+      "weighted avg_support": 2.0
+    },
+    "clearml_id": "local-test_model"
+  },
+  "logreg_1764532991": {
+    "id": "logreg_1764532991",
+    "name": "logreg_1764532991",
+    "model_class": "logreg",
+    "hyperparams": {
+      "C": 1.0,
+      "max_iter": 1000
+    },
+    "dataset": "test_dataset.csv",
+    "status": "ready",
+    "created_at": "2025-11-30T23:03:11.392360",
+    "artifact_path": "/Users/ekaterinapolah/Desktop/hse/ml/ml_service_hw1/trained_models/logreg_1764532991.joblib",
+    "val_score": 0.0,
+    "metrics": {
+      "accuracy": 0.0,
+      "f1_score": 0.0,
+      "val_samples": 2,
+      "0_precision": 0.0,
+      "0_recall": 0.0,
+      "0_f1-score": 0.0,
+      "0_support": 1.0,
+      "1_precision": 0.0,
+      "1_recall": 0.0,
+      "1_f1-score": 0.0,
+      "1_support": 1.0,
+      "macro avg_precision": 0.0,
+      "macro avg_recall": 0.0,
+      "macro avg_f1-score": 0.0,
+      "macro avg_support": 2.0,
+      "weighted avg_precision": 0.0,
+      "weighted avg_recall": 0.0,
+      "weighted avg_f1-score": 0.0,
+      "weighted avg_support": 2.0
+    },
+    "clearml_id": "local-logreg_1764532991"
+  }
+}

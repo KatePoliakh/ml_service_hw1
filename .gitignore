@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.swp
+*.swo
+*.coverage
+*.egg-info/
+*.eggs/
+*.mypy_cache/
+*.pytest_cache/
+.env
+venv/
+.env.*
+
+# DVC
+.dvc/
+*.dvc
+
+# Data / models 
+
+
+# Kubernetes / Minikube / Docker
+*.yaml.kustomize
+*.kube/
+.kube/
+*.minikube/
+minikube/
+*.docker/
+docker-compose.override.yml
+docker-compose.*.yml
+*.log
+
+# OS-specific
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Jupyter / notebooks
+.ipynb_checkpoints/
+
+# Build artifacts
+build/
+dist/
+*.egg
