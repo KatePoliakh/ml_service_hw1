@@ -44,3 +44,25 @@ class DatasetInfo(BaseModelNoNS):
     size: int = Field(..., description="Dataset size in bytes")
     created_at: str = Field(..., description="Creation timestamp")
     dvc_tracked: bool = Field(..., description="Whether dataset is tracked by DVC")
+
+
+class EvaluateRequest(BaseModelNoNS):
+    model_id: str = Field(..., description="ID of the model to evaluate")
+    dataset: str = Field(..., description="Name of the test dataset for evaluation")
+    use_test_split: bool = Field(
+        default=True,
+        description="Whether to use the test split of the dataset if available"
+    )
+
+
+class EvaluateResponse(BaseModelNoNS):
+    model_id: str = Field(..., description="ID of the evaluated model")
+    dataset: str = Field(..., description="Name of the dataset used for evaluation")
+    accuracy: float = Field(..., description="Accuracy score")
+    precision: float = Field(..., description="Precision score (weighted average)")
+    recall: float = Field(..., description="Recall score (weighted average)")
+    f1_score: float = Field(..., description="F1 score (weighted average)")
+    class_metrics: Dict[str, Dict[str, float]] = Field(
+        ..., description="Per-class metrics"
+    )
+    total_samples: int = Field(..., description="Total number of samples used for evaluation")

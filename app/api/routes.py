@@ -1,15 +1,12 @@
-from fastapi import APIRouter, HTTPException, UploadFile, File, BackgroundTasks, Query
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, HTTPException, UploadFile, File, BackgroundTasks
 from app.logger import logger
-from app.api.models import TrainRequest, PredictRequest, ModelInfo, DatasetInfo, ModelClass
-from app.core import trainer, registry, storage
+from app.api.models import TrainRequest, PredictRequest, ModelInfo, DatasetInfo, ModelClass, EvaluateRequest, EvaluateResponse
+from app.core import trainer, registry
 from app.core.clearml_client import ClearMLClient
-import os
-import json
-import shutil
 from pathlib import Path
 from datetime import datetime
-import pandas as pd
+import time
+from app.core.monitoring import MODEL_INFERENCE_SECONDS
 
 router = APIRouter()
 
@@ -166,11 +163,48 @@ async def predict(payload: PredictRequest):
         raise HTTPException(400, "Model is not ready for prediction")
     
     try:
+        start = time.perf_counter()
         predictions = trainer.predict(payload.model_id, payload.features)
+        duration = time.perf_counter() - start
+        MODEL_INFERENCE_SECONDS.observe(duration)
         return {"predictions": predictions, "model_id": payload.model_id}
     except Exception as e:
         logger.error(f"Prediction failed: {e}")
         raise HTTPException(500, f"Prediction failed: {str(e)}")
+
+@router.post("/models/evaluate", response_model=EvaluateResponse, tags=["models"])
+async def evaluate_model_endpoint(request: EvaluateRequest):
+    """Evaluate model on test dataset and return metrics"""
+    logger.info(f"Evaluation requested for model: {request.model_id} on dataset: {request.dataset}")
+    
+    # Validate model exists
+    model = registry.get_entry(request.model_id)
+    if not model:
+        raise HTTPException(404, "Model not found")
+    
+    if model["status"] != "ready":
+        raise HTTPException(400, "Model is not ready for evaluation")
+    
+    # Validate dataset exists
+    dataset_path = DATA_DIR / request.dataset
+    if not dataset_path.exists():
+        raise HTTPException(404, "Dataset not found")
+    
+    try:
+        metrics = trainer.evaluate_model(
+            model_id=request.model_id,
+            dataset_name=request.dataset,
+            use_test_split=request.use_test_split
+        )
+        
+        return metrics
+        
+    except FileNotFoundError as e:
+        logger.error(f"File not found during evaluation: {e}")
+        raise HTTPException(404, str(e))
+    except Exception as e:
+        logger.error(f"Evaluation failed: {e}")
+        raise HTTPException(500, f"Evaluation failed: {str(e)}")
 
 @router.post("/models/{model_id}/retrain", tags=["models"])
 async def retrain(model_id: str, background_tasks: BackgroundTasks):

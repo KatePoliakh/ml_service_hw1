@@ -1,7 +1,6 @@
 """
 ML model trainer with ClearML integration
 """
-import os
 import traceback
 from pathlib import Path
 from joblib import dump, load
@@ -17,6 +16,7 @@ from sklearn.metrics import accuracy_score, f1_score, classification_report
 
 from app.core.registry import create_entry, update_entry
 from app.core.clearml_client import ClearMLClient
+from app.core.metrics import calculate_metrics
 from app.logger import logger
 
 
@@ -233,6 +233,61 @@ def predict(model_id: str, features):
     preds = model.predict(arr).tolist()
     logger.info(f"Predicted {len(preds)} samples")
     return preds
+
+
+def evaluate_model(model_id: str, dataset_name: str, use_test_split: bool = True):
+    """
+    Evaluate trained model on test dataset and return metrics.
+    
+    Args:
+        model_id: ID of the model to evaluate
+        dataset_name: Name of the dataset to use for evaluation
+        use_test_split: Whether to use the test split of the dataset if available
+
+    Returns:
+        Dict with evaluation metrics
+    
+    Raises:
+        FileNotFoundError: If model or dataset not found
+        ValueError: If dataset is invalid
+    """
+    logger.info(f"Evaluating model {model_id} on dataset {dataset_name}")
+
+    # Load model
+    model_path = MODEL_DIR / f"{model_id}.joblib"
+    if model_path.exists():
+        model = load(model_path)
+        logger.info(f"Loaded model {model_id} from local storage")
+    else:
+        try:
+            clearml = ClearMLClient()
+            model = clearml.load_model(model_id)
+            logger.info(f"Loaded model {model_id} from ClearML")
+        except Exception:
+            logger.error(f"Model {model_id} not found anywhere")
+            raise FileNotFoundError(f"Model {model_id} not found")
+
+    # Load dataset
+    X_test, y_test = _read_dataset(dataset_name)
+    
+    # If dataset has predefined splits, use test split
+    # For now, using full dataset
+    logger.info(f"Loaded test dataset with {len(y_test)} samples")
+    
+    # Generate predictions
+    y_pred = model.predict(X_test)
+    
+    # Calculate metrics
+    from app.core.metrics import prepare_evaluation_data
+    y_true, y_pred = prepare_evaluation_data(y_test, y_pred)
+    metrics = calculate_metrics(y_true, y_pred)
+    
+    # Add model and dataset info
+    metrics["model_id"] = model_id
+    metrics["dataset"] = dataset_name
+    
+    logger.info(f"Evaluation completed: accuracy={metrics['accuracy']:.4f}, f1_score={metrics['f1_score']:.4f}")
+    return metrics
 
 
 #DELETE METHOD
